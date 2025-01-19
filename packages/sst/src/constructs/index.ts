@@ -4,6 +4,7 @@ export * from "./Auth.js";
 export * from "./Api.js";
 export * from "./Job.js";
 export * from "./RDS.js";
+export * from './RDSv2.js';
 export * from "./Cognito.js";
 export * from "./Cron.js";
 export * from "./Queue.js";
