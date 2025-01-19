@@ -1,6 +1,7 @@
 import path from 'path';
 import { globSync } from 'glob';
 import fs from 'fs';
+import url from "url";
 import * as crypto from 'crypto';
 import { Construct } from 'constructs';
 import { Duration as CDKDuration, CustomResource } from 'aws-cdk-lib/core';
@@ -26,9 +27,7 @@ import { Stack } from "./Stack.js";
 import { getFunctionRef, SSTConstruct, isCDKConstruct } from "./Construct.js";
 import { Function as Fn } from "./Function.js";
 import { BindingProps } from "./util/binding.js";
-// This is a workaround that would have to be changed if this was moved into the actual sst package
-const sstConstructsModulePath = path.join(path.dirname(require.resolve('sst')), 'constructs');
-const __dirname = sstConstructsModulePath;
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 /////////////////////
 // Interfaces
