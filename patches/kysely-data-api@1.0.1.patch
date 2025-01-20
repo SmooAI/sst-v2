@@ -1,0 +1,131 @@
+diff --git a/dist/cjs/data-api-driver.js b/dist/cjs/data-api-driver.js
+index 6f1e65bd15391f35b4e497b6dbe8041dc63df646..14c289e4d322290d2281669b0bf89a3c41c09729 100644
+--- a/dist/cjs/data-api-driver.js
++++ b/dist/cjs/data-api-driver.js
+@@ -99,15 +99,21 @@ class DataApiConnection {
+                     this.#unmarshallArrayValue(val.arrayValue) ??
+                     val.blobValue ??
+                     null; // FIXME: should throw an error here?
+-            if (typeof (value) === 'string' && typeName && ["timestamp", "timestamptz", "date"].includes(typeName.toLocaleLowerCase())) {
+-                value = new Date(value);
++            if (typeof value === "string" && typeName) {
++                const typeNameSafe = typeName.toLocaleLowerCase();
++                if (["timestamp", "date"].includes(typeNameSafe)) {
++                    value = new Date(value);
++                }
++                else if (typeNameSafe === "timestamptz") {
++                    value = new Date(`${value}Z`);
++                }
++                else if (["json", "jsonb"].includes(typeNameSafe)) {
++                    value = JSON.parse(value);
++                }
+             }
+             return [key, value];
+         })));
+-        const result = {
+-            rows: rows || [],
+-        };
+-        return result;
++        return { rows: rows ?? [] };
+     }
+     async *streamQuery(_compiledQuery, _chunkSize) {
+         throw new Error("Data API does not support streaming");
+diff --git a/dist/cjs/postgres-introspector.js b/dist/cjs/postgres-introspector.js
+index 391a9bb5fc733be39f270407f41902ffa40a51e7..f755878f62957b019a282ecc7508297b55a143f3 100644
+--- a/dist/cjs/postgres-introspector.js
++++ b/dist/cjs/postgres-introspector.js
+@@ -49,7 +49,7 @@ class PostgresIntrospector {
+                 .as("auto_incrementing"),
+         ])
+             // r == normal table
+-            .where((qb) => qb("c.relkind", "=", "r").or("c.relkind", "=", "v"))
++            .where("c.relkind", "in", ["r", "v"])
+             .where("ns.nspname", "!~", "^pg_")
+             .where("ns.nspname", "!=", "information_schema")
+             // No system columns
+diff --git a/dist/esm/data-api-driver.js b/dist/esm/data-api-driver.js
+index bf7c17b334fdf04c6929b83c0206cab1c5362fba..35eaa701723ab4bf4c9a21842e5eac3234dad672 100644
+--- a/dist/esm/data-api-driver.js
++++ b/dist/esm/data-api-driver.js
+@@ -95,15 +95,21 @@ class DataApiConnection {
+                     this.#unmarshallArrayValue(val.arrayValue) ??
+                     val.blobValue ??
+                     null; // FIXME: should throw an error here?
+-            if (typeof (value) === 'string' && typeName && ["timestamp", "timestamptz", "date"].includes(typeName.toLocaleLowerCase())) {
+-                value = new Date(value);
++            if (typeof value === "string" && typeName) {
++                const typeNameSafe = typeName.toLocaleLowerCase();
++                if (["timestamp", "date"].includes(typeNameSafe)) {
++                    value = new Date(value);
++                }
++                else if (typeNameSafe === "timestamptz") {
++                    value = new Date(`${value}Z`);
++                }
++                else if (["json", "jsonb"].includes(typeNameSafe)) {
++                    value = JSON.parse(value);
++                }
+             }
+             return [key, value];
+         })));
+-        const result = {
+-            rows: rows || [],
+-        };
+-        return result;
++        return { rows: rows ?? [] };
+     }
+     async *streamQuery(_compiledQuery, _chunkSize) {
+         throw new Error("Data API does not support streaming");
+diff --git a/dist/esm/postgres-introspector.js b/dist/esm/postgres-introspector.js
+index 528a3d4c3495ae6a53be80d9002090e5c473b96a..25019b0044a292da4e608be3a3b8ba249e92cde8 100644
+--- a/dist/esm/postgres-introspector.js
++++ b/dist/esm/postgres-introspector.js
+@@ -46,7 +46,7 @@ export class PostgresIntrospector {
+                 .as("auto_incrementing"),
+         ])
+             // r == normal table
+-            .where((qb) => qb("c.relkind", "=", "r").or("c.relkind", "=", "v"))
++            .where("c.relkind", "in", ["r", "v"])
+             .where("ns.nspname", "!~", "^pg_")
+             .where("ns.nspname", "!=", "information_schema")
+             // No system columns
+diff --git a/package.json b/package.json
+index 258316c792f3de36b14cedd78ab09d763f63de78..bbd4340120d719945e440099c11c6e8882629d59 100644
+--- a/package.json
++++ b/package.json
+@@ -11,19 +11,19 @@
+   "license": "MIT",
+   "scripts": {
+     "clean": "rm -rf dist && rm -rf test/dist",
+-    "release": "yarn build && yarn changeset publish",
+-    "build": "yarn clean && yarn build:esm && yarn build:cjs && ./module-fixup.sh",
++    "release": "pnpm build && pnpm changeset publish",
++    "build": "pnpm clean && pnpm build:esm && pnpm build:cjs && ./module-fixup.sh",
+     "test": "AWS_SDK_LOAD_CONFIG=1 vitest",
+     "build:esm": "tsc -p tsconfig-esm.json",
+     "build:cjs": "tsc -p tsconfig-cjs.json"
+   },
+   "devDependencies": {
+-    "@aws-sdk/client-rds-data": "^3.549.0",
++    "@aws-sdk/client-rds-data": "^3.614.0",
+     "@changesets/changelog-github": "^0.4.5",
+     "@changesets/cli": "^2.23.2",
+     "@tsconfig/node14": "^1.0.1",
+     "@types/node": "^18.14.2",
+-    "kysely": "^0.27.3",
++    "kysely": "^0.27.4",
+     "perf_hooks": "^0.0.1",
+     "prettier": "^2.8.4",
+     "typescript": "^5.4.4",
+@@ -31,9 +31,10 @@
+   },
+   "peerDependencies": {
+     "@aws-sdk/client-rds-data": "3.x",
+-    "kysely": "^0.27.3"
++    "kysely": "^0.27.4"
+   },
+   "files": [
+     "dist"
+-  ]
++  ],
++  "packageManager": "pnpm@9.1.4+sha512.9df9cf27c91715646c7d675d1c9c8e41f6fce88246f1318c1aa6a1ed1aeb3c4f032fcdf4ba63cc69c4fe6d634279176b5358727d8f2cc1e65b65f43ce2f8bfb0"
+ }

@@ -536,7 +536,7 @@ export class RDSv2 extends Construct implements SSTConstruct {
         //       rebuilding infrastructure b/c the "BuildAt" property changes on
         //       each build.
         const hash = app.mode === 'dev' ? 0 : this.generateMigrationsHash(migrations);
-        new CustomResource(this, 'MigrationResource', {
+        const resource = new CustomResource(this, 'MigrationResource', {
             serviceToken: handler.functionArn,
             resourceType: 'Custom::SSTScript',
             properties: {
@@ -546,6 +546,8 @@ export class RDSv2 extends Construct implements SSTConstruct {
                 MigrationsHash: hash,
             },
         });
+
+        resource.node.addDependency(this.cdk.cluster);
     }
 
     private generateMigrationsHash(migrations: string): string {

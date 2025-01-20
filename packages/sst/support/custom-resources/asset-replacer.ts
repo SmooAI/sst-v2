@@ -82,11 +82,13 @@ async function download(bucket: string, key: string) {
 async function upload(bucket: string, key: string) {
   console.log("upload");
 
+  const fileBuffer = fs.readFileSync(zipPath);
+
   await s3.send(
     new PutObjectCommand({
       Key: key,
       Bucket: bucket,
-      Body: fs.createReadStream(zipPath),
+      Body: fileBuffer,
     })
   );
 }

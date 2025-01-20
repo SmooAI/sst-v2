@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  kysely-data-api@1.0.1:
+    hash: uyj4mlmdheiysd3symgm42nade
+    path: patches/kysely-data-api@1.0.1.patch
+
 importers:
 
   .:
@@ -354,8 +359,8 @@ importers:
         specifier: 9.16.0
         version: 9.16.0
       adm-zip:
-        specifier: ^0.5.10
-        version: 0.5.16
+        specifier: 0.5.14
+        version: 0.5.14
       aws-cdk-lib:
         specifier: 2.171.1
         version: 2.171.1(constructs@10.3.0)
@@ -436,7 +441,7 @@ importers:
         version: 0.10.1(kysely@0.25.0)
       kysely-data-api:
         specifier: ^1.0.1
-        version: 1.0.1(@aws-sdk/client-rds-data@3.454.0(aws-crt@1.25.0))(kysely@0.25.0)
+        version: 1.0.1(patch_hash=uyj4mlmdheiysd3symgm42nade)(@aws-sdk/client-rds-data@3.454.0(aws-crt@1.25.0))(kysely@0.25.0)
       minimatch:
         specifier: ^6.1.6
         version: 6.2.0
@@ -5085,8 +5090,8 @@ packages:
     resolution: {integrity: sha512-4B/qKCfeE/ODUaAUpSwfzazo5x29WD4r3vXiWsB7I2mSDAihwEqKO+g8GELZUQSSAo5e1XTYh3ZVfLyxBc12nA==}
     engines: {node: '>= 10.0.0'}
 
-  adm-zip@0.5.16:
-    resolution: {integrity: sha512-TGw5yVi4saajsSEgz25grObGHEUaDrniwvA2qwSC060KfqGPdglhvPMA2lPIoxs3PQIItj2iag35fONcQqgUaQ==}
+  adm-zip@0.5.14:
+    resolution: {integrity: sha512-DnyqqifT4Jrcvb8USYjp6FHtBpEIz1mnXu6pTRHZ0RL69LbQYiO+0lDFg5+OKA7U29oWSs3a/i8fhn8ZcceIWg==}
     engines: {node: '>=12.0'}
 
   agent-base@6.0.2:
@@ -21292,7 +21297,7 @@ snapshots:
 
   address@1.2.2: {}
 
-  adm-zip@0.5.16: {}
+  adm-zip@0.5.14: {}
 
   agent-base@6.0.2:
     dependencies:
@@ -25211,7 +25216,7 @@ snapshots:
       micromatch: 4.0.8
       minimist: 1.2.8
 
-  kysely-data-api@1.0.1(@aws-sdk/client-rds-data@3.454.0(aws-crt@1.25.0))(kysely@0.25.0):
+  kysely-data-api@1.0.1(patch_hash=uyj4mlmdheiysd3symgm42nade)(@aws-sdk/client-rds-data@3.454.0(aws-crt@1.25.0))(kysely@0.25.0):
     dependencies:
       '@aws-sdk/client-rds-data': 3.454.0(aws-crt@1.25.0)
       kysely: 0.25.0
